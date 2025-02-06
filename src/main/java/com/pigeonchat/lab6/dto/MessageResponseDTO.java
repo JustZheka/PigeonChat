@@ -16,7 +16,7 @@ public class MessageResponseDTO {
 
     private String text;
 
-    private ProfileResponseDTO profile;
+    private UUID profileId;
 
-    private ChatResponseDTO chat;
+    private UUID chatId;
 }

@@ -8,7 +8,7 @@ import java.util.UUID;
 public class MessageRequestDTO {
     private String text;
 
-    private UUID chat;
+    private UUID chatId;
 
-    private UUID profile;
+    private UUID profileId;
 }

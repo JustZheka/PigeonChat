@@ -2,41 +2,33 @@ package com.pigeonchat.lab6.services;
 
 import com.pigeonchat.lab6.dto.AccountRequestDTO;
 import com.pigeonchat.lab6.dto.AccountResponseDTO;
-import com.pigeonchat.lab6.dto.ProfileRequestDTO;
 import com.pigeonchat.lab6.dto.ProfileResponseDTO;
 import com.pigeonchat.lab6.entity.Account;
-import com.pigeonchat.lab6.entity.Profile;
 import com.pigeonchat.lab6.mappers.AccountMapper;
 import com.pigeonchat.lab6.mappers.ProfileMapper;
 import com.pigeonchat.lab6.repository.AccountRepository;
-import com.pigeonchat.lab6.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(makeFinal = true)
 public class AccountService {
-    @Autowired
     private AccountRepository accountRepository;
-    private final AccountMapper accountMapper = new AccountMapper();
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    @Autowired
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private ProfileService profileService;
+    private AccountMapper accountMapper;
+    private ProfileMapper profileMapper;
 
-    private final ProfileMapper profileMapper = new ProfileMapper();
-
-    public AccountResponseDTO createAccount(AccountRequestDTO accountRequestDTO) {
-        if (accountRepository.findByLogin(accountRequestDTO.getLogin()).isPresent())
+    public AccountResponseDTO createAccount(final AccountRequestDTO accountRequestDTO) {
+        if (accountRepository.findByLogin(accountRequestDTO.getLogin()).isPresent()) {
             throw new IllegalArgumentException("Аккаунт с таким логином уже существует");
+        }
 
         String hashedPassword = passwordEncoder.encode(accountRequestDTO.getPassword());
 
@@ -49,16 +41,16 @@ public class AccountService {
 
         Account savedAccount = accountRepository.save(account);
 
-        return accountMapper.toResponseDTO(savedAccount, AccountResponseDTO.class);
+        return accountMapper.toResponseDTO(savedAccount);
     }
 
-    public AccountResponseDTO getAccountByLogin(String login) {
+    public AccountResponseDTO getAccountByLogin(final String login) {
         Account account = accountRepository.findByLogin(login)
                 .orElseThrow(() -> new IllegalArgumentException("Аккаунт не найден"));
-        return accountMapper.toResponseDTO(account, AccountResponseDTO.class);
+        return accountMapper.toResponseDTO(account);
     }
 
-    public void updatePassword(String login, String oldPassword, String newPassword) {
+    public void updatePassword(final String login, final String oldPassword, final String newPassword) {
         Account account = accountRepository.findByLogin(login)
                 .orElseThrow(() -> new IllegalArgumentException("Аккаунт не найден"));
 
@@ -73,7 +65,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void deleteAccount(String login, String password) {
+    public void deleteAccount(final String login, final String password) {
         Account account = accountRepository.findByLogin(login)
                 .orElseThrow(() -> new IllegalArgumentException("Аккаунт не найден"));
 

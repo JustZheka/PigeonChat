@@ -5,7 +5,6 @@ import com.pigeonchat.lab6.dto.ChatResponseDTO;
 import com.pigeonchat.lab6.dto.MessageRequestDTO;
 import com.pigeonchat.lab6.dto.ProfileResponseDTO;
 import com.pigeonchat.lab6.entity.Chat;
-import com.pigeonchat.lab6.entity.Message;
 import com.pigeonchat.lab6.entity.Profile;
 import com.pigeonchat.lab6.mappers.ChatMapper;
 import com.pigeonchat.lab6.mappers.MessageMapper;
@@ -13,7 +12,7 @@ import com.pigeonchat.lab6.mappers.ProfileMapper;
 import com.pigeonchat.lab6.repository.ChatRepository;
 import com.pigeonchat.lab6.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,45 +22,42 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(makeFinal = true)
 public class ChatService {
-    @Autowired
     private ChatRepository chatRepository;
-
-    @Autowired
     private ProfileRepository profileRepository;
+    private ChatMapper chatMapper;
+    private ProfileMapper profileMapper;
+    private MessageMapper messageMapper;
 
-
-    private final ChatMapper chatMapper = new ChatMapper();
-    private final ProfileMapper profileMapper = new ProfileMapper();
-
-    public ChatResponseDTO getChatById(UUID chatId) {
+    public ChatResponseDTO getChatById(final UUID chatId) {
         return chatMapper.toResponseDTO(chatRepository.findById(chatId)
-                .orElseThrow(() -> new RuntimeException("Чат не найден")), ChatResponseDTO.class);
+                .orElseThrow(() -> new RuntimeException("Чат не найден")));
     }
 
     public List<ChatResponseDTO> getAllChats() {
         return chatRepository.findAll().stream()
-                .map(x -> chatMapper.toResponseDTO(x, ChatResponseDTO.class))
+                .map(chatMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    public ChatResponseDTO createChat(ChatRequestDTO chatRequestDTO) {
+    public ChatResponseDTO createChat(final ChatRequestDTO chatRequestDTO) {
         Chat chat = new Chat();
         chat.setTitle(chatRequestDTO.getTitle());
         chat.setAvatar(chatRequestDTO.getAvatar());
-        return chatMapper.toResponseDTO(chatRepository.save(chat), ChatResponseDTO.class);
+        return chatMapper.toResponseDTO(chatRepository.save(chat));
     }
 
-    public ChatResponseDTO updateChat(UUID chatId, ChatRequestDTO chatRequestDTO) {
+    public ChatResponseDTO updateChat(final UUID chatId, final ChatRequestDTO chatRequestDTO) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new RuntimeException("Чат не найден"));
         chat.setTitle(chatRequestDTO.getTitle());
         chat.setAvatar(chatRequestDTO.getAvatar());
-        return chatMapper.toResponseDTO(chatRepository.save(chat), ChatResponseDTO.class);
+        return chatMapper.toResponseDTO(chatRepository.save(chat));
     }
 
     @Transactional
-    public void deleteChat(UUID chatId) {
+    public void deleteChat(final UUID chatId) {
         chatRepository.deleteById(chatId);
     }
 
@@ -71,45 +67,42 @@ public class ChatService {
         Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new RuntimeException("Профиль не найден"));
 
-        if (chat.getProfiles().contains(profile))
-            return chatMapper.toResponseDTO(chat, ChatResponseDTO.class);
+        if (chat.getProfiles().contains(profile)) {
+            return chatMapper.toResponseDTO(chat);
+        }
 
         profile.getChats().add(chat);
         profileRepository.save(profile);
         chat.getProfiles().add(profile);
-        return chatMapper.toResponseDTO(chatRepository.save(chat), ChatResponseDTO.class);
+        return chatMapper.toResponseDTO(chatRepository.save(chat));
     }
 
-    public ChatResponseDTO removeParticipantFromChat(UUID chatId, UUID profileId) {
+    public ChatResponseDTO removeParticipantFromChat(final UUID chatId, final UUID profileId) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new RuntimeException("Чат не найден"));
         Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new RuntimeException("Профиль не найден"));
-
         chat.getProfiles().remove(profile);
-        return chatMapper.toResponseDTO(chatRepository.save(chat), ChatResponseDTO.class);
+        return chatMapper.toResponseDTO(chatRepository.save(chat));
     }
 
-    public List<ProfileResponseDTO> getParticipantsByChatId(UUID chatId) {
+    public List<ProfileResponseDTO> getParticipantsByChatId(final UUID chatId) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new RuntimeException("Чат не найден"));
         return chat.getProfiles().stream()
-                .map(x -> profileMapper.toResponseDTO(x, ProfileResponseDTO.class))
+                .map(profileMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    public void deleteMessage(UUID chatId, UUID messageId) {
+    public void deleteMessage(final UUID chatId, final UUID messageId) {
         Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Чат не найден"));
-
         chat.getMessages().removeIf(x -> x.getId().equals(messageId));
-
         chatRepository.save(chat);
     }
 
-    public void addMessage(UUID chatId, MessageRequestDTO message) {
-        MessageMapper mapper = new MessageMapper();
+    public void addMessage(final UUID chatId, final MessageRequestDTO message) {
         Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Чат не найден"));
-        chat.getMessages().add(mapper.toEntity(message, Message.class));
+        chat.getMessages().add(messageMapper.toEntity(message));
         chatRepository.save(chat);
     }
 }

@@ -6,7 +6,7 @@ import com.pigeonchat.lab6.entity.Profile;
 import com.pigeonchat.lab6.mappers.ProfileMapper;
 import com.pigeonchat.lab6.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,36 +16,36 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(makeFinal = true)
 public class ProfileService {
-    @Autowired
     private ProfileRepository profileRepository;
-    private final ProfileMapper profileMapper = new ProfileMapper();
+    private ProfileMapper profileMapper;
 
     public List<ProfileResponseDTO> getAllProfiles() {
         return profileRepository.findAll().stream()
-                .map(x -> profileMapper.toResponseDTO(x, ProfileResponseDTO.class))
+                .map(profileMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    public ProfileResponseDTO getProfileById(UUID id) {
+    public ProfileResponseDTO getProfileById(final UUID id) {
         Profile profile = profileRepository.findById(id).orElseThrow(() -> new RuntimeException("Профиль не найден"));
-        return profileMapper.toResponseDTO(profile, ProfileResponseDTO.class);
+        return profileMapper.toResponseDTO(profile);
     }
 
-    public List<ProfileResponseDTO> getProfileByUsername(String username) {
+    public List<ProfileResponseDTO> getProfileByUsername(final String username) {
         List<Profile> profiles = profileRepository.findByUsername(username);
         return profiles.stream()
-                .map(x -> profileMapper.toResponseDTO(x, ProfileResponseDTO.class))
+                .map(profileMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    public ProfileResponseDTO createProfile(ProfileRequestDTO profileDTO) {
-        Profile profile = profileMapper.toEntity(profileDTO, Profile.class);
+    public ProfileResponseDTO createProfile(final ProfileRequestDTO profileDTO) {
+        Profile profile = profileMapper.toEntity(profileDTO);
         Profile savedProfile = profileRepository.save(profile);
-        return profileMapper.toResponseDTO(savedProfile, ProfileResponseDTO.class);
+        return profileMapper.toResponseDTO(savedProfile);
     }
 
-    public ProfileResponseDTO updateProfile(UUID id, ProfileRequestDTO profileDTO) {
+    public ProfileResponseDTO updateProfile(final UUID id, final ProfileRequestDTO profileDTO) {
         Profile existingProfile = profileRepository.findById(id).orElseThrow(() -> new RuntimeException("Профиль не найден"));
         existingProfile.setUsername(profileDTO.getUsername());
         existingProfile.setRegistrationDate(profileDTO.getRegistrationDate());
@@ -53,11 +53,11 @@ public class ProfileService {
         existingProfile.setAvatar(profileDTO.getAvatar());
         existingProfile.setEmail(profileDTO.getEmail());
         Profile updatedProfile = profileRepository.save(existingProfile);
-        return profileMapper.toResponseDTO(updatedProfile, ProfileResponseDTO.class);
+        return profileMapper.toResponseDTO(updatedProfile);
     }
 
     @Transactional
-    public void deleteProfile(UUID id) {
+    public void deleteProfile(final UUID id) {
         profileRepository.deleteById(id);
     }
 }

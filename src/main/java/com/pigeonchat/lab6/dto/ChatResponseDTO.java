@@ -17,7 +17,7 @@ public class ChatResponseDTO {
     private String title;
     private String avatar;
 
-    private List<MessageResponseDTO> messages;
+    private List<UUID> messagesId;
 
-    private List<ProfileResponseDTO> profiles;
+    private List<UUID> profilesId;
 }
