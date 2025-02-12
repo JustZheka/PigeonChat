@@ -16,16 +16,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/message")
 public class MessageController {
-    @Autowired
-    private MessageService messageService;
+    final MessageService messageService;
 
     @GetMapping("/{messageId}")
-    public ResponseEntity<MessageResponseDTO> getMessage(@PathVariable UUID messageId) {
+    public ResponseEntity<MessageResponseDTO> getMessage(@PathVariable final UUID messageId) {
         return ResponseEntity.ok(messageService.getMessageById(messageId));
     }
 
     @GetMapping("/chat/{chatId}")
-    public ResponseEntity<List<MessageResponseDTO>> getMessagesByChatId(@PathVariable UUID chatId) {
+    public ResponseEntity<List<MessageResponseDTO>> getMessagesByChatId(@PathVariable final UUID chatId) {
         return ResponseEntity.ok(messageService.getMessagesByChatId(chatId));
     }
 
@@ -35,15 +34,12 @@ public class MessageController {
     }
 
     @PutMapping("/{messageId}")
-    public ResponseEntity<MessageResponseDTO> updateMessage(
-            @PathVariable UUID messageId,
-            @RequestBody MessageRequestDTO messageRequestDTO
-    ) {
+    public ResponseEntity<MessageResponseDTO> updateMessage(@PathVariable final UUID messageId, @RequestBody MessageRequestDTO messageRequestDTO) {
         return ResponseEntity.ok(messageService.updateMessage(messageId, messageRequestDTO));
     }
 
     @DeleteMapping("/{messageId}")
-    public ResponseEntity<Void> deleteMessage(@PathVariable UUID messageId, @RequestParam UUID chatId) {
+    public ResponseEntity<Void> deleteMessage(@PathVariable final UUID messageId, @RequestParam UUID chatId) {
         messageService.deleteMessage(chatId, messageId);
         return ResponseEntity.noContent().build();
     }

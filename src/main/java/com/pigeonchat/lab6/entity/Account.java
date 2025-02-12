@@ -1,10 +1,16 @@
 package com.pigeonchat.lab6.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
+@Entity
 @Table(name = "accounts")
 public class Account {
     @Id

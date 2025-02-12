@@ -4,7 +4,6 @@ import com.pigeonchat.lab6.dto.ProfileRequestDTO;
 import com.pigeonchat.lab6.dto.ProfileResponseDTO;
 import com.pigeonchat.lab6.services.ProfileService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,8 +13,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/profile")
 public class ProfileController{
-    @Autowired
-    private ProfileService profileService;
+    final ProfileService profileService;
 
     @GetMapping
     public List<ProfileResponseDTO> getAllProfiles() {
@@ -23,12 +21,12 @@ public class ProfileController{
     }
 
     @GetMapping("/{id}")
-    public ProfileResponseDTO getProfileById(@PathVariable UUID id) {
+    public ProfileResponseDTO getProfileById(@PathVariable final UUID id) {
         return profileService.getProfileById(id);
     }
 
     @GetMapping("/username/{username}")
-    public List<ProfileResponseDTO> getProfileByUsername(@PathVariable String username) {
+    public List<ProfileResponseDTO> getProfileByUsername(@PathVariable final String username) {
         return profileService.getProfileByUsername(username);
     }
 
@@ -38,12 +36,12 @@ public class ProfileController{
     }
 
     @PutMapping("/{id}")
-    public ProfileResponseDTO updateProfile(@PathVariable UUID id, @RequestBody ProfileRequestDTO profileDTO) {
+    public ProfileResponseDTO updateProfile(@PathVariable final UUID id, @RequestBody ProfileRequestDTO profileDTO) {
         return profileService.updateProfile(id, profileDTO);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProfile(@PathVariable UUID id) {
+    public void deleteProfile(@PathVariable final UUID id) {
         profileService.deleteProfile(id);
     }
 }

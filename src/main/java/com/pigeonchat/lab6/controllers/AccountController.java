@@ -6,7 +6,6 @@ import com.pigeonchat.lab6.dto.AccountResponseDTO;
 import com.pigeonchat.lab6.dto.AccountUpdateRequestDTO;
 import com.pigeonchat.lab6.services.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/account")
 public class AccountController {
-    @Autowired
-    private final AccountService accountService;
+    final AccountService accountService;
 
     @PostMapping
     public ResponseEntity<AccountResponseDTO> createAccount(@RequestBody AccountRequestDTO accountRequestDTO) {
@@ -25,7 +23,7 @@ public class AccountController {
     }
 
     @GetMapping("/{login}")
-    public ResponseEntity<AccountResponseDTO> getAccountByLogin(@PathVariable String login) {
+    public ResponseEntity<AccountResponseDTO> getAccountByLogin(@PathVariable final String login) {
         AccountResponseDTO responseDTO = accountService.getAccountByLogin(login);
         return ResponseEntity.ok(responseDTO);
     }
