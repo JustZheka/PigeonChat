@@ -27,12 +27,10 @@ public class Chat {
     @Column
     private String avatar;
 
-    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Message> messages;
 
-    @ManyToMany
-    @JsonManagedReference
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<Profile> profiles;
 
     @PreRemove

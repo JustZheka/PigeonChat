@@ -9,72 +9,66 @@ import com.pigeonchat.lab6.exceptions.LoginAlreadyExistException;
 import com.pigeonchat.lab6.mappers.AccountMapper;
 import com.pigeonchat.lab6.mappers.ProfileMapper;
 import com.pigeonchat.lab6.repository.AccountRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
-import org.springframework.stereotype.Service;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true)
 public class AccountService {
     AccountRepository accountRepository;
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     ProfileService profileService;
     AccountMapper accountMapper;
     ProfileMapper profileMapper;
+    PasswordEncoder passwordEncoder;
 
-    public AccountResponseDTO createAccount(final AccountRequestDTO accountRequestDTO) {
-        if (accountRepository.findByLogin(accountRequestDTO.getLogin()).isPresent()) {
-            throw new LoginAlreadyExistException("Аккаунт с таким логином уже существует");
-        }
-
-        val hashedPassword = passwordEncoder.encode(accountRequestDTO.getPassword());
+    public AccountResponseDTO createAccount(@NonNull final AccountRequestDTO accountRequestDTO) {
+        accountRepository.findByLogin(accountRequestDTO.getLogin())
+            .ifPresent(_ -> {
+                throw new LoginAlreadyExistException("Аккаунт с таким логином уже существует");
+            });
 
         val account = Account.builder()
             .login(accountRequestDTO.getLogin())
-            .password(hashedPassword)
+            .password(passwordEncoder.encode(accountRequestDTO.getPassword()))
             .build();
 
         val profile = profileService.createProfile(accountRequestDTO.getProfile());
         account.setProfile(profileMapper.toEntity(profile));
 
-        val savedAccount = accountRepository.save(account);
-
-        return accountMapper.toResponseDTO(savedAccount);
+        return accountMapper.toResponseDTO(accountRepository.save(account));
     }
 
-    public AccountResponseDTO getAccountByLogin(final String login) {
-        val account = accountRepository.findByLogin(login)
-                .orElseThrow(() -> new AccountNotFoundException("Аккаунт не найден"));
-        return accountMapper.toResponseDTO(account);
+    public AccountResponseDTO getAccountByLogin(@NonNull final String login) {
+        return accountRepository.findByLogin(login)
+            .map(accountMapper::toResponseDTO)
+            .orElseThrow(() -> new AccountNotFoundException("Аккаунт не найден"));
     }
 
-    public void updatePassword(final String login, final String oldPassword, final String newPassword) {
+    public void updatePassword(@NonNull final String login, @NonNull final String oldPassword, @NonNull final String newPassword) {
         val account = accountRepository.findByLogin(login)
-                .orElseThrow(() -> new AccountNotFoundException("Аккаунт не найден"));
+            .orElseThrow(() -> new AccountNotFoundException("Аккаунт не найден"));
 
         if (!passwordEncoder.matches(oldPassword, account.getPassword())) {
-            throw new IncorrectPasswordException("Не верный пароль");
+            throw new IncorrectPasswordException("Неверный пароль");
         }
 
-        val hashedPassword = passwordEncoder.encode(newPassword);
-        account.setPassword(hashedPassword);
-
+        account.setPassword(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
     }
 
-    public void deleteAccount(final String login, final String password) {
+    public void deleteAccount(@NonNull final String login, @NonNull final String password) {
         val account = accountRepository.findByLogin(login)
-                .orElseThrow(() -> new AccountNotFoundException("Аккаунт не найден"));
+            .orElseThrow(() -> new AccountNotFoundException("Аккаунт не найден"));
 
         if (!passwordEncoder.matches(password, account.getPassword())) {
-            throw new IncorrectPasswordException("Не верный пароль");
+            throw new IncorrectPasswordException("Неверный пароль");
         }
 
-        accountRepository.deleteByLogin(login);
+        accountRepository.delete(account);
     }
 }

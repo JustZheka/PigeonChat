@@ -4,6 +4,8 @@ import com.pigeonchat.lab6.dto.ProfileRequestDTO;
 import com.pigeonchat.lab6.dto.ProfileResponseDTO;
 import com.pigeonchat.lab6.services.ProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,32 +18,22 @@ public class ProfileController{
     final ProfileService profileService;
 
     @GetMapping
-    public List<ProfileResponseDTO> getAllProfiles() {
-        return profileService.getAllProfiles();
+    public ResponseEntity<List<ProfileResponseDTO>> getAllProfiles() {
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getAllProfiles());
     }
 
     @GetMapping("/{id}")
-    public ProfileResponseDTO getProfileById(@PathVariable final UUID id) {
-        return profileService.getProfileById(id);
+    public ResponseEntity<ProfileResponseDTO> getProfileById(@PathVariable final UUID id) {
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getProfileById(id));
     }
 
     @GetMapping("/username/{username}")
-    public List<ProfileResponseDTO> getProfileByUsername(@PathVariable final String username) {
-        return profileService.getProfileByUsername(username);
-    }
-
-    @PostMapping("/create")
-    public ProfileResponseDTO createProfile(@RequestBody ProfileRequestDTO profileDTO) {
-        return profileService.createProfile(profileDTO);
+    public ResponseEntity<List<ProfileResponseDTO>> getProfileByUsername(@PathVariable final String username) {
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getProfileByUsername(username));
     }
 
     @PutMapping("/{id}")
-    public ProfileResponseDTO updateProfile(@PathVariable final UUID id, @RequestBody ProfileRequestDTO profileDTO) {
-        return profileService.updateProfile(id, profileDTO);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteProfile(@PathVariable final UUID id) {
-        profileService.deleteProfile(id);
+    public ResponseEntity<ProfileResponseDTO> updateProfile(@PathVariable final UUID id, @RequestBody ProfileRequestDTO profileDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.updateProfile(id, profileDTO));
     }
 }

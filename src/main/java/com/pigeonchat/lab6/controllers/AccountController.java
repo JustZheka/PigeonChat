@@ -18,20 +18,18 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<AccountResponseDTO> createAccount(@RequestBody AccountRequestDTO accountRequestDTO) {
-        AccountResponseDTO responseDTO = accountService.createAccount(accountRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(accountRequestDTO));
     }
 
     @GetMapping("/{login}")
     public ResponseEntity<AccountResponseDTO> getAccountByLogin(@PathVariable final String login) {
-        AccountResponseDTO responseDTO = accountService.getAccountByLogin(login);
-        return ResponseEntity.ok(responseDTO);
+        return ResponseEntity.ok(accountService.getAccountByLogin(login));
     }
 
     @PutMapping("/changePassword")
     public ResponseEntity<Void> updatePassword(@RequestBody AccountUpdateRequestDTO accountUpdateRequestDTO) {
         accountService.updatePassword(accountUpdateRequestDTO.getLogin(), accountUpdateRequestDTO.getOldPassword(), accountUpdateRequestDTO.getNewPassword());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/delete")

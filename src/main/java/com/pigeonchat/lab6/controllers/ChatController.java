@@ -20,12 +20,12 @@ public class ChatController {
 
     @GetMapping("/{chatId}")
     public ResponseEntity<ChatResponseDTO> getChat(@PathVariable final UUID chatId) {
-        return ResponseEntity.ok(chatService.getChatById(chatId));
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChatById(chatId));
     }
 
     @GetMapping
     public ResponseEntity<List<ChatResponseDTO>> getAllChats() {
-        return ResponseEntity.ok(chatService.getAllChats());
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.getAllChats());
     }
 
     @PostMapping
@@ -35,7 +35,7 @@ public class ChatController {
 
     @PutMapping("/{chatId}")
     public ResponseEntity<ChatResponseDTO> updateChat(@PathVariable final UUID chatId, @RequestBody ChatRequestDTO chatRequestDTO) {
-        return ResponseEntity.ok(chatService.updateChat(chatId, chatRequestDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.updateChat(chatId, chatRequestDTO));
     }
 
     @DeleteMapping("/{chatId}")
@@ -46,17 +46,17 @@ public class ChatController {
 
     @PostMapping("/{chatId}/participants/{profileId}")
     public ResponseEntity<ChatResponseDTO> addParticipantToChat(@PathVariable final UUID chatId, @PathVariable final UUID profileId) {
-        return ResponseEntity.ok(chatService.addParticipantToChat(chatId, profileId));
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.addParticipantToChat(chatId, profileId));
     }
 
     @DeleteMapping("/{chatId}/participants/{profileId}")
     public ResponseEntity<ChatResponseDTO> removeParticipantFromChat(@PathVariable final UUID chatId, @PathVariable final UUID profileId) {
-        return ResponseEntity.ok(chatService.removeParticipantFromChat(chatId, profileId));
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.removeParticipantFromChat(chatId, profileId));
     }
 
     @GetMapping("/{chatId}/participants")
     public ResponseEntity<List<ProfileResponseDTO>> getParticipantsByChatId(@PathVariable final UUID chatId) {
-        return ResponseEntity.ok(chatService.getParticipantsByChatId(chatId));
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.getParticipantsByChatId(chatId));
     }
 
 }

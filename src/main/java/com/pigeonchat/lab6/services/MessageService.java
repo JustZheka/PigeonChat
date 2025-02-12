@@ -9,6 +9,7 @@ import com.pigeonchat.lab6.mappers.ChatMapper;
 import com.pigeonchat.lab6.mappers.MessageMapper;
 import com.pigeonchat.lab6.mappers.ProfileMapper;
 import com.pigeonchat.lab6.repository.MessageRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
@@ -29,42 +30,40 @@ public class MessageService {
     ChatService chatService;
     ProfileService profileService;
 
-    public MessageResponseDTO getMessageById(final UUID messageId) {
-        return messageMapper.toResponseDTO(messageRepository.findById((messageId))
-                .orElseThrow(() -> new MessageNotFoundException("Сообщение не найдено")));
+    public MessageResponseDTO getMessageById(@NonNull final UUID messageId) {
+        return messageMapper.toResponseDTO(messageRepository.findById(messageId)
+            .orElseThrow(() -> new MessageNotFoundException("Сообщение не найдено")));
     }
 
-    public List<MessageResponseDTO> getMessagesByChatId(final UUID chatId) {
+    public List<MessageResponseDTO> getMessagesByChatId(@NonNull final UUID chatId) {
         return messageRepository.findByChatId(chatId).stream()
-                .map(messageMapper::toResponseDTO)
-                .collect(Collectors.toList());
+            .map(messageMapper::toResponseDTO)
+            .collect(Collectors.toList());
     }
 
-    public MessageResponseDTO createMessage(final MessageRequestDTO messageRequestDTO) {
-        val message = Message.builder()
-            .text(messageRequestDTO.getText())
-            .build();
-
+    public MessageResponseDTO createMessage(@NonNull final MessageRequestDTO messageRequestDTO) {
         val chat = chatService.getChatById(messageRequestDTO.getChatId());
         val profile = profileService.getProfileById(messageRequestDTO.getProfileId());
 
         if (!chat.getProfilesId().contains(profile.getId())) {
             throw new UserNotInChatException(
-                "Пользователь %s не является участником чата %s"
-                    .formatted(profile.getId(), chat.getId())
+                "Пользователь %s не является участником чата %s".formatted(profile.getId(), chat.getId())
             );
         }
 
-        chatService.addMessage(chat.getId(), messageRequestDTO);
-        message.setChat(chatMapper.toEntity(chat));
-        message.setProfile(profileMapper.toEntity(profile));
+        val message = Message.builder()
+            .text(messageRequestDTO.getText())
+            .chat(chatMapper.toEntity(chat))
+            .profile(profileMapper.toEntity(profile))
+            .build();
 
+        chatService.addMessage(chat.getId(), messageRequestDTO);
         return messageMapper.toResponseDTO(messageRepository.save(message));
     }
 
-    public MessageResponseDTO updateMessage(final UUID messageId, final MessageRequestDTO messageRequestDTO) {
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new MessageNotFoundException("Сообщение не найдено"))
+    public MessageResponseDTO updateMessage(@NonNull final UUID messageId, @NonNull final MessageRequestDTO messageRequestDTO) {
+        val message = messageRepository.findById(messageId)
+            .orElseThrow(() -> new MessageNotFoundException("Сообщение не найдено"))
             .toBuilder()
             .text(messageRequestDTO.getText())
             .build();
@@ -72,7 +71,11 @@ public class MessageService {
         return messageMapper.toResponseDTO(messageRepository.save(message));
     }
 
-    public void deleteMessage(final UUID chatId, final UUID messageId) {
+    public void deleteMessage(@NonNull final UUID chatId, @NonNull final UUID messageId) {
+        if (!messageRepository.existsById(messageId)) {
+            throw new MessageNotFoundException("Сообщение не найдено");
+        }
+
         chatService.deleteMessage(chatId, messageId);
         messageRepository.deleteById(messageId);
     }

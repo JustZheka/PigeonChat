@@ -44,7 +44,6 @@ public class Profile {
     @Column(name = "user_role")
     private UserRole userRole = UserRole.USER;
 
-    @ManyToMany()
-    @JsonBackReference
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<Chat> chats;
 }

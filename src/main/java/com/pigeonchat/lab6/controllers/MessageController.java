@@ -20,12 +20,12 @@ public class MessageController {
 
     @GetMapping("/{messageId}")
     public ResponseEntity<MessageResponseDTO> getMessage(@PathVariable final UUID messageId) {
-        return ResponseEntity.ok(messageService.getMessageById(messageId));
+        return ResponseEntity.status(HttpStatus.OK).body(messageService.getMessageById(messageId));
     }
 
     @GetMapping("/chat/{chatId}")
     public ResponseEntity<List<MessageResponseDTO>> getMessagesByChatId(@PathVariable final UUID chatId) {
-        return ResponseEntity.ok(messageService.getMessagesByChatId(chatId));
+        return ResponseEntity.status(HttpStatus.OK).body(messageService.getMessagesByChatId(chatId));
     }
 
     @PostMapping
@@ -35,7 +35,7 @@ public class MessageController {
 
     @PutMapping("/{messageId}")
     public ResponseEntity<MessageResponseDTO> updateMessage(@PathVariable final UUID messageId, @RequestBody MessageRequestDTO messageRequestDTO) {
-        return ResponseEntity.ok(messageService.updateMessage(messageId, messageRequestDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(messageService.updateMessage(messageId, messageRequestDTO));
     }
 
     @DeleteMapping("/{messageId}")

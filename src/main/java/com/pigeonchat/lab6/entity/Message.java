@@ -23,11 +23,9 @@ public class Message {
     @Column
     private String text;
 
-    @ManyToOne()
-    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
     private Chat chat;
 
-    @ManyToOne()
-    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
     private Profile profile;
 }
